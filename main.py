@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 # coding:utf-8
 
+# inspiration: http://v3l0c1r4pt0r.tk/2014/06/01/how-to-download-from-dreamspark-bypassing-secure-download-manager/
+
 __author__ = 'gulliver - Radek Simkanič'
 
 #TODO rewrite to for Python3
