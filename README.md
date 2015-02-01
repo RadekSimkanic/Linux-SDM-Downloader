@@ -8,7 +8,7 @@ Linux-SDM-Downloader is Python script for download SDM files and joining to one 
 - BeautifulSoup
 
 ## How to use
-Download actual source code, unpacking and run:
+Download actual source code (unpacking) and run:
 ```
 git clone https://github.com/RadekSimkanic/Linux-SDM-Downloader.git
 cd Linux-SDM-Downloader
