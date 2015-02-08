@@ -15,7 +15,10 @@ import shutil
 #from urllib.parse import urlparse
 from urlparse import urlparse
 from BeautifulSoup import BeautifulSoup as Soup
+# or:
+#from bs4 import BeautifulSoup as Soup
 from soupselect import select
+from lxml import etree
 
 # constants
 INFORMATION = 0;
@@ -191,6 +194,10 @@ class Downloader:
 		message("Downloading page contains download link", INFORMATION)
 		response = urllib2.urlopen(url)
 		html = response.read()
+
+		#remove CDATA
+		e = etree.XML(html)
+		html = etree.tostring(e)
 
 		message("Parsing page", INFORMATION)
 		soup = Soup(html)
