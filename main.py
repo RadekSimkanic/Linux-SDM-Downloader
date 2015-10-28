@@ -384,17 +384,17 @@ class Parser:
         return self._endFileId
 
     def getListFilesIds(self):
-        return xrange(self._beginFileId, self._endFileId, 1)
+        return xrange(self._beginFileId, self._endFileId + 1)
 
     def getDownloadUrl(self, selected, domain):
-        position = selected - 1 - self._beginFileId
+        position = selected - self._beginFileId
         url = "http://%s/WebStore/Account/SDMAuthorize.ashx?oiopu=%s&f=%s&oiop=%s&dl=%s" \
               % (domain, self._oiopu[position], self._fileId[position], self._oiop[position], self._dlSelect)
 
         return url
 
     def getFileName(self, fileId):
-        position = fileId - 1 - self._beginFileId
+        position = fileId - self._beginFileId
         return self._fileName[position]
 
 if __name__ == '__main__':
