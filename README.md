@@ -20,6 +20,7 @@ Next step after successful process for unpacking SDM package is unpacking via [x
 ## News
 28-10-2015:
 - Enable downloading also ISO files (and maybe others files) via .SDX
+- List of tested OS and status whether works ok or not.
 
 ## Tested
 - Linux Mint 17.1 Rebecca: OK
