@@ -15,4 +15,8 @@ cd Linux-SDM-Downloader
 python main.py <SDX file>
 ```
 
-Next step after successful process for unpacking SDM package is unpacking via [xSDM](https://github.com/v3l0c1r4pt0r/xSDM). 
+Next step after successful process for unpacking SDM package is unpacking via [xSDM](https://github.com/v3l0c1r4pt0r/xSDM).
+
+## News
+28-10-2015:
+- Enable downloading also ISO files (and maybe others files) via .SDX
