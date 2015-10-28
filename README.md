@@ -42,4 +42,4 @@ Version 1.0.0:
 - **Linux Debian Wheezy** | Python 2.7.3: **OK** (Dominik Chrastecký)
 - **Windows 10** | cygwin | Python 2.7.8: **OK** (Dominik Chrastecký)
 
-Pleas tell me whether you work Linux-SDM-Downloader on your distribution.
+Please tell me whether you work Linux-SDM-Downloader on your distribution.
