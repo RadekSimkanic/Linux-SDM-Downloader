@@ -1,9 +1,10 @@
 #! /usr/bin/env python
 # coding:utf-8
 
-# inspiration: http://v3l0c1r4pt0r.tk/2014/06/01/how-to-download-from-dreamspark-bypassing-secure-download-manager/
+# first inspiration: http://v3l0c1r4pt0r.tk/2014/06/01/how-to-download-from-dreamspark-bypassing-secure-download-manager/
 
 __author__ = 'gulliver - Radek Simkanič'
+__version__ = "1.0.0"
 
 import urllib2
 import sys
@@ -11,7 +12,6 @@ import os
 import shutil
 import HTMLParser
 
-#from urllib.parse import urlparse
 from urlparse import urlparse
 from BeautifulSoup import BeautifulSoup as Soup
 # or:
