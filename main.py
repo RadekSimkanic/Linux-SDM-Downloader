@@ -117,7 +117,7 @@ class Downloader:
         position = input("Please select file via number 1 - %i: " % (self._lastFileId))
         position = int(position)
 
-        if position < 1 or position >= self._lastFileId:
+        if position < 1 or position > self._lastFileId:
             message("Bad choose!", WARNING)
             self._getList()
             return
