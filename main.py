@@ -274,7 +274,7 @@ class Downloader:
             message("Glue is not need", INFORMATION)
             return
         else:
-            message("Gluing...")
+            message("Gluing...", INFORMATION)
         parser = self._getSelectedParser()
         fileName = parser.getFileName(self._selected)
         if len(self._downloadedFiles) == 1:
