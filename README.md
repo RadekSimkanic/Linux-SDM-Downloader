@@ -28,7 +28,6 @@ python main.py <SDX file>
 Next step after successful process for unpacking SDM package is unpacking via [xSDM](https://github.com/v3l0c1r4pt0r/xSDM).
 
 ## News
-
 28-10-2015:
 - Version 1.0.0
 - Enable downloading also ISO files (and maybe others files) via .SDX
@@ -44,5 +43,6 @@ Version 1.0.0:
 - **Windows 10** | cygwin | Python 2.7.8: **OK** (Dominik Chrastecký)
 - **Linux Debian 8 Jessie (32 bit)** | Python 2.7.9: **OK** (Zbyněk Fišer - Nialaren)
 - **OS X 10.11.1 (15B42)** | Python 2.7.10: **OK** (Michal Jamroz)
+- **Arch (4.2.5-1)** | Python 2.7.10: **OK**
 
 Please tell me whether you work Linux-SDM-Downloader on your distribution.
