@@ -41,5 +41,6 @@ Version 1.0.0:
 - **Linux Mint 17.1 Rebecca** | Python 2.7.6: **OK** (Radek Simkanič)
 - **Linux Debian Wheezy** | Python 2.7.3: **OK** (Dominik Chrastecký)
 - **Windows 10** | cygwin | Python 2.7.8: **OK** (Dominik Chrastecký)
+- **Arch (4.2.5-1)** | Python 2.7.10: **OK**
 
 Please tell me whether you work Linux-SDM-Downloader on your distribution.
