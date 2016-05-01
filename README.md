@@ -38,6 +38,7 @@ Next step after successful process for unpacking SDM package is unpacking via [x
 
 ## Tested
 Version 1.0.0:
+- **Linux Ubuntu 15.10 wily | Python 2.7.10: OK (Bent Haase)**
 - **Linux Mint 17.1 Rebecca** | Python 2.7.6: **OK** (Radek Simkanič)
 - **Linux Debian Wheezy** | Python 2.7.3: **OK** (Dominik Chrastecký)
 - **Windows 10** | cygwin | Python 2.7.8: **OK** (Dominik Chrastecký)
