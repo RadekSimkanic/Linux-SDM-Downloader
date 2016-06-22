@@ -5,16 +5,15 @@ Downloader SDM files via SDX file (DreamSpark) on Linux (primary)
 Linux-SDM-Downloader is Python script for download SDM files and joining to one file. For downloading these files is needed SDX file. SDM file is possible unpacking via [xSDM](https://github.com/v3l0c1r4pt0r/xSDM).
 
 ## Prerequisites
-- BeautifulSoup
 - Lxml
 
 ### Installing dependencies on Linux (debian):
 ```
-# aptitude install python-beautifulsoup python-lxml
+# aptitude install python-lxml
 ```
 or
 ```
-# apt-get install python-beautifulsoup python-lxml
+# apt-get install python-lxml
 ```
 
 ## How to use
@@ -28,6 +27,11 @@ python main.py <SDX file>
 Next step after successful process for unpacking SDM package is unpacking via [xSDM](https://github.com/v3l0c1r4pt0r/xSDM).
 
 ## News
+22-06-2016
+- Version 1.1.0
+- Eliminating the use of beautifulsoup. Prerequisities only Lxml.
+- New error information about expiry to download file.
+
 28-10-2015:
 - Version 1.0.0
 - Enable downloading also ISO files (and maybe others files) via .SDX

@@ -4,7 +4,7 @@
 # first inspiration: http://v3l0c1r4pt0r.tk/2014/06/01/how-to-download-from-dreamspark-bypassing-secure-download-manager/
 
 __author__ = 'gulliver - Radek Simkanič'
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 import urllib2
 import sys
@@ -13,11 +13,10 @@ import shutil
 import HTMLParser
 
 from urlparse import urlparse
-from BeautifulSoup import BeautifulSoup as Soup
-# or:
-#from bs4 import BeautifulSoup as Soup
-from soupselect import select
+
+import lxml
 from lxml import etree
+from hashlib import md5
 
 # constants
 INFORMATION = 0
@@ -47,6 +46,9 @@ def message(text, type):
     elif type == DONE:
         print("\033[32;1m %s \033[0m" % text)
 
+
+def findInsensitive(lxmlElement, tag, attribute, value):
+    return lxmlElement.xpath("//%s[re:test(@%s, '^%s$', 'i')]"%(tag, attribute, value), namespaces={"re": "http://exslt.org/regular-expressions"})
 
 class Downloader:
     def __init__(self):
@@ -98,6 +100,7 @@ class Downloader:
             message("Downloading main page", INFORMATION)
             response = urllib2.urlopen(url)
             html = response.read()
+
             self._html = html
             return True
         except ValueError:
@@ -125,8 +128,8 @@ class Downloader:
         self._selected = position
 
     def _separateGroups(self):
-        soup = Soup(self._html)
-        groups = select(soup, ".OrderItemDetails")
+        parse = etree.HTML(self._html)
+        groups = parse.xpath("//div[@class='OrderItemDetails']")
 
         if len(groups) == 0:
             message("No groups of files", ERROR)
@@ -159,48 +162,49 @@ class Downloader:
             self._selected,
             self._domain
         )
-
         message("Downloading page contains download link", INFORMATION)
         response = urllib2.urlopen(url)
         html = response.read()
 
-        #remove CDATA
-        e = etree.XML(html)
-        html = etree.tostring(e)
-
         message("Parsing page", INFORMATION)
-        soup = Soup(html)
-        fileUrl = select(soup, 'fileurl')
+        parse = etree.XML(html)
+
+        root = str(parse.tag).lower()
+
+        if root == "AccessGuaranteeExpiry".lower():
+            message("File access expiry: %s" % parse.text, ERROR)
+            return False
+
+        fileUrl = parse.xpath(".//fileUrl")
         if len(fileUrl) == 0:
-            fileUrl = soup.select('fileUrl')
-        edv = select(soup, 'edv')
+            fileUrl = parse.xpath(".//fileurl")
+
+        edv = parse.xpath(".//edv")
 
         if len(fileUrl) == 0:
             message("The page does not have a download link. ", ERROR)
             return False
+        fileUrl = fileUrl[0].text
 
         if len(edv) == 0:
             message("The page does not have 'edv' key", ERROR)
             return False
+        edv = edv[0].text
 
-        #name = self.fileName[self.selected-1]
         name = parser.getFileName(self._selected)
         fileKeyName = "%s.key" % name
-
-        edv = edv[0]
 
         if html.find("<edv/>") != -1:
             message("The .key file is not necessary.", INFORMATION)
         else:
             message("Creating .key file", INFORMATION)
 
-            f = open(str(fileKeyName), 'w')
-            f.write(str(edv.string))
+            f = open(fileKeyName, 'w')
+            f.write(edv)
             f.close()
             message("Created", DONE)
 
-        fileUrl = fileUrl[0]
-        downloadUrl = fileUrl.string
+        downloadUrl = fileUrl
 
         # contains html entities
         if downloadUrl.find("&amp") >= 0:
@@ -288,12 +292,11 @@ class Downloader:
         destination.close()
 
 class Parser:
-    def __init__(self, htmlGroup, groupId, startingFileId):
-        self._html = str(htmlGroup)
+    def __init__(self, etreeElementGroup, groupId, startingFileId):
+        self._etreeElement = etreeElementGroup
         self._groupId = int(groupId)
         self._beginFileId = int(startingFileId)
         self._endFileId = int(startingFileId)
-
         self._groupName = ""
         self._dlSelect = ""
         self._oiop = []
@@ -301,19 +304,14 @@ class Parser:
         self._fileId = []
         self._fileName = []
         #self._fileUrl = []
-
         self._parse()
 
     def _parse(self):
-        soup = Soup(self._html)
-
-        # group name
-        groupName = select(soup, '#offeringNameForRequest' + str(self._groupId))
-        groupName = groupName[0]
-        self._groupName = groupName.get('value')
+        groupName = findInsensitive(self._etreeElement, "input", "id", "offeringNameForRequest%i"%self._groupId)
+        self._groupName = groupName[0].get('value')
 
         # dlSelect code
-        dlSelect = select(soup, '#dlSelect' + str(self._groupId))
+        dlSelect = findInsensitive(self._etreeElement, "input", "id", "dlSelect%i"%self._groupId)
         if len(dlSelect) == 0:
                 message("#dlSelect%d is not found"%self._groupId, ERROR)
                 return False
@@ -322,46 +320,51 @@ class Parser:
 
         # other data
         edvCounter = 0
-        edv = select(soup, '#edv')
+        edv = findInsensitive(self._etreeElement, "input", "id", "edv")
 
         if len(edv) == 0:
             i = self._endFileId
             while(True):
-                edvInput = '#edv' + str(i)
-                oiopInput = '#oiop' + str(i)
-                oiopuInput = '#oiopu' + str(i)
-                fileIdInput = '#fileID' + str(i)
-                fileNameInput = '#fileName' + str(i)
-                fileUrlInput = '#fileUrl' + str(i)
+                edv = findInsensitive(self._etreeElement, "input", "id", "edv%i"%self._groupId)
 
-                edv = select(soup, edvInput)
                 if len(edv) == 0:
-                    edvCounter = i-1
+
+                    edvCounter = self._groupId-1
                     self._endFileId = edvCounter
                     break
 
-                oiop = select(soup, oiopInput)
-                oiopu = select(soup, oiopuInput)
-                fileId = select(soup, fileIdInput)
-                fileName = select(soup, fileNameInput)
-                #fileUrl = select(soup, fileUrlInput)
+                oiop = findInsensitive(self._etreeElement, "input", "id", "oiop%i"%self._groupId)
+                oiopu = findInsensitive(self._etreeElement, "input", "id", "oiopu%i"%self._groupId)
+                fileId = findInsensitive(self._etreeElement, "input", "id", "fileId%i"%self._groupId)
+                fileName = findInsensitive(self._etreeElement, "input", "id", "fileName%i"%self._groupId)
+                #fileUrl = findInsensitive(self._etreeElement, "input", "id", "fileUrl%i"%self._groupId)
 
                 if len(oiop) == 0 or len(oiopu) == 0 or len(fileId) == 0 or len(fileName) == 0:
                     message("Fragments is not found during parsing", ERROR)
                     return False
-                oiop = oiop[0]
-                oiopu = oiopu[0]
-                fileId = fileId[0]
-                fileName = fileName[0]
+                oiop = oiop[0].get("value")
+                oiopu = oiopu[0].get("value")
+                fileId = fileId[0].get("value")
+                fileName = fileName[0].get("value")
                 #fileUrl = fileUrl[0]
 
-                self._oiop.append( oiop.get('value') )
-                self._oiopu.append( oiopu.get('value') )
-                self._fileId.append( fileId.get('value') )
-                self._fileName.append( fileName.get('value') )
-                #self._fileUrl.append( fileUrl.get('value') )
+                self._oiop.append(
+                    oiop
+                )
+                self._oiopu.append(
+                    oiopu
+                )
+                self._fileId.append(
+                    fileId
+                )
+                self._fileName.append(
+                    fileName
+                )
+                #self._fileUrl.append(
+                #    fileUrl.tostring(fileUrl)
+                #)
 
-                i += 1
+                self._groupId += 1
         else:
             message("Edv is only one", INFORMATION)
             edvCounter = 1
