@@ -16,7 +16,6 @@ from urlparse import urlparse
 
 import lxml
 from lxml import etree
-from hashlib import md5
 
 # constants
 INFORMATION = 0

@@ -1,4 +1,4 @@
-# Linux-SDM-Downloader 1.0.0
+# Linux-SDM-Downloader 1.1.0
 Downloader SDM files via SDX file (DreamSpark) on Linux (primary)
 
 ## What is it?
