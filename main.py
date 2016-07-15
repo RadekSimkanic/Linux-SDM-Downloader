@@ -13,7 +13,7 @@ import shutil
 import HTMLParser
 
 from urlparse import urlparse
-from subprocess import call, check_output
+from subprocess import call, check_output, PIPE
 
 import lxml
 from lxml import etree
@@ -241,43 +241,54 @@ class Downloader:
         return True
 
     def _downloadFile(self, url, fileName):
-        message("Testing download URL: %s" % url, INFORMATION)
+        
+        if call("type wget" , shell=True, stdout=PIPE, stderr=PIPE) == 0:
+            status = call(['wget', url])
+            if status != 0:
+                return False  
+        
+        else:
+            message("Testing download URL: %s" % url, INFORMATION)
+            
+            request = urllib2.Request(url)
+            try:
+                u = urllib2.urlopen(request)
+            except urllib2.URLError, e:
+                return False
+            meta = u.info()
 
-        request = urllib2.Request(url)
-        try:
-            u = urllib2.urlopen(request)
-        except urllib2.URLError, e:
-            return False
-        f = open(fileName, 'wb')
-        meta = u.info()
-
-        fileSize = int(meta.getheaders("Content-Length")[0])
-        cmd = 'df -k %s' % getcwd()
-        freeSpace = int(check_output(cmd.strip().split()).split('\n')[1].split()[3])
-        diffSize = float( (fileSize - freeSpace)/ 1024.0 )
-        if  freeSpace < fileSize:
-            ans = raw_input("You need an additional %f MB on this drive to download the whole file, continue? (y/n) " % diffSize).strip()
+            fileSize = int(meta.getheaders("Content-Length")[0])
+            
+            cmd = 'df -k %s' % os.getcwd()
+            freeSpace = int(check_output(cmd.strip().split()).split('\n')[1].split()[3])
+            diffSize = float( (fileSize - freeSpace)/ 1024.0 )
+            if  freeSpace < fileSize:
+                ans = raw_input("You need an additional %f MB on this drive to download the whole file, continue? (y/n) " % diffSize).strip()
+            
             while ans != 'y' and ans != 'n':
                 ans = raw_input("Enter y or n: ")
-            if ans == 'n':
-                sys.exit()
-        print("Downloading: %s Bytes: %s" % (fileName, fileSize) )
+                if ans == 'n':
+                    sys.exit()
+            
+            print("Downloading: %s Bytes: %s" % (fileName, fileSize) )
+            
+            f = open(fileName, 'wb')
+            fileSizeDl = 0
+            blockSize = 8192
+            while True:
+                buffer = u.read(blockSize)
+                if not buffer:
+                    break
 
-        fileSizeDl = 0
-        blockSize = 8192
-        while True:
-            buffer = u.read(blockSize)
-            if not buffer:
-                break
+                fileSizeDl += len(buffer)
+                f.write(buffer)
+                status = r"%10d  [%3.2f%%]" % (fileSizeDl, fileSizeDl * 100. / fileSize)
+                status = status + chr(8)*(len(status)+1)
+                print status,
 
-            fileSizeDl += len(buffer)
-            f.write(buffer)
-            status = r"%10d  [%3.2f%%]" % (fileSizeDl, fileSizeDl * 100. / fileSize)
-            status = status + chr(8)*(len(status)+1)
-            print status,
-
-        f.close()
-
+            f.close()
+            
+            
         self._downloadedFiles.append(fileName)
 
         return True
