@@ -13,6 +13,7 @@ import shutil
 import HTMLParser
 
 from urlparse import urlparse
+from subprocess import call, check_output
 
 import lxml
 from lxml import etree
@@ -251,6 +252,15 @@ class Downloader:
         meta = u.info()
 
         fileSize = int(meta.getheaders("Content-Length")[0])
+        cmd = 'df -k %s' % getcwd()
+        freeSpace = int(check_output(cmd.strip().split()).split('\n')[1].split()[3])
+        diffSize = float( (fileSize - freeSpace)/ 1024.0 )
+        if  freeSpace < fileSize:
+            ans = raw_input("You need an additional %f MB on this drive to download the whole file, continue? (y/n) " % diffSize).strip()
+            while ans != 'y' and ans != 'n':
+                ans = raw_input("Enter y or n: ")
+            if ans == 'n':
+                sys.exit()
         print("Downloading: %s Bytes: %s" % (fileName, fileSize) )
 
         fileSizeDl = 0

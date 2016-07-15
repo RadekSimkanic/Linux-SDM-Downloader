@@ -50,4 +50,7 @@ Version 1.0.0:
 - **OS X 10.11.1 (15B42)** | Python 2.7.10: **OK** (Michal Jamroz)
 - **Arch (4.2.5-1)** | Python 2.7.10: **OK**
 
+Version 1.1.0:
+- **Linux Fedora 24** | Python 2.7.11: **OK** (Michael Chavrimootoo)
+
 Please tell me whether you work Linux-SDM-Downloader on your distribution.
