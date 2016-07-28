@@ -27,21 +27,22 @@ python main.py <SDX file>
 Next step after successful process for unpacking SDM package is unpacking via [xSDM](https://github.com/v3l0c1r4pt0r/xSDM).
 
 ## News
-28-07-2016
+2016-07-28:
 - Version 1.2.0
 - Added functionality that checks for free space on disk.
+- Fix bug - selecting file in groups
 
-22-06-2016
+2016-06-22:
 - Version 1.1.0
 - Eliminating the use of beautifulsoup. Prerequisities only Lxml.
 - New error information about expiry to download file.
 
-28-10-2015:
+2015-10-28:
 - Version 1.0.0
 - Enable downloading also ISO files (and maybe others files) via .SDX
 - List of tested OS and status whether works ok or not.
 
-29-01-2015:
+2015-01-29:
 - Created first beta version
 
 ## Tested

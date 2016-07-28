@@ -137,10 +137,12 @@ class Downloader:
 
         groupId = 1
         fileId = 1
+
         for group in groups:
             parser = Parser(group, groupId, fileId)
             self._parsers.append(parser)
             fileId = parser.getLastFileId() + 1
+
             groupId += 1
             self._filesMapper.append(
                 parser.getListFilesIds()
@@ -194,7 +196,7 @@ class Downloader:
         name = parser.getFileName(self._selected)
         fileKeyName = "%s.key" % name
 
-        if html.find("<edv/>") != -1:
+        if html.find("<edv/>") != -1 or edv is None:
             message("The .key file is not necessary.", INFORMATION)
         else:
             message("Creating .key file", INFORMATION)
@@ -322,7 +324,8 @@ class Downloader:
 
 class Parser:
     def __init__(self, etreeElementGroup, groupId, startingFileId):
-        self._etreeElement = etreeElementGroup
+        htmlFragment = etree.tostring(etreeElementGroup)
+        self._etreeElement = etree.HTML(htmlFragment)
         self._groupId = int(groupId)
         self._beginFileId = int(startingFileId)
         self._endFileId = int(startingFileId)
@@ -350,23 +353,19 @@ class Parser:
         # other data
         edvCounter = 0
         edv = findInsensitive(self._etreeElement, "input", "id", "edv")
-
         if len(edv) == 0:
-            i = self._endFileId
             while(True):
-                edv = findInsensitive(self._etreeElement, "input", "id", "edv%i"%self._groupId)
-
+                edv = findInsensitive(self._etreeElement, "input", "id", "edv%i"%self._endFileId)
                 if len(edv) == 0:
-
-                    edvCounter = self._groupId-1
-                    self._endFileId = edvCounter
+                    if edvCounter:
+                        self._endFileId -= 1
                     break
 
-                oiop = findInsensitive(self._etreeElement, "input", "id", "oiop%i"%self._groupId)
-                oiopu = findInsensitive(self._etreeElement, "input", "id", "oiopu%i"%self._groupId)
-                fileId = findInsensitive(self._etreeElement, "input", "id", "fileId%i"%self._groupId)
-                fileName = findInsensitive(self._etreeElement, "input", "id", "fileName%i"%self._groupId)
-                #fileUrl = findInsensitive(self._etreeElement, "input", "id", "fileUrl%i"%self._groupId)
+                edvCounter += 1
+                oiop = findInsensitive(self._etreeElement, "input", "id", "oiop%i"%self._endFileId)
+                oiopu = findInsensitive(self._etreeElement, "input", "id", "oiopu%i"%self._endFileId)
+                fileId = findInsensitive(self._etreeElement, "input", "id", "fileId%i"%self._endFileId)
+                fileName = findInsensitive(self._etreeElement, "input", "id", "fileName%i"%self._endFileId)
 
                 if len(oiop) == 0 or len(oiopu) == 0 or len(fileId) == 0 or len(fileName) == 0:
                     message("Fragments is not found during parsing", ERROR)
@@ -375,7 +374,6 @@ class Parser:
                 oiopu = oiopu[0].get("value")
                 fileId = fileId[0].get("value")
                 fileName = fileName[0].get("value")
-                #fileUrl = fileUrl[0]
 
                 self._oiop.append(
                     oiop
@@ -389,11 +387,8 @@ class Parser:
                 self._fileName.append(
                     fileName
                 )
-                #self._fileUrl.append(
-                #    fileUrl.tostring(fileUrl)
-                #)
 
-                self._groupId += 1
+                self._endFileId += 1
         else:
             message("Edv is only one", INFORMATION)
             edvCounter = 1
