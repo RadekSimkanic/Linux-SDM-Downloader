@@ -30,6 +30,7 @@ Next step after successful process for unpacking SDM package is unpacking via [x
 28-07-2016
 - Version 1.2.0
 - Added functionality that checks for free space on disk.
+
 22-06-2016
 - Version 1.1.0
 - Eliminating the use of beautifulsoup. Prerequisities only Lxml.
