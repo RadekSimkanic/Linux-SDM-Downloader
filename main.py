@@ -13,6 +13,7 @@ import shutil
 import HTMLParser
 
 from urlparse import urlparse
+from subprocess import check_output
 
 import lxml
 from lxml import etree
@@ -247,12 +248,31 @@ class Downloader:
             u = urllib2.urlopen(request)
         except urllib2.URLError, e:
             return False
-        f = open(fileName, 'wb')
         meta = u.info()
 
         fileSize = int(meta.getheaders("Content-Length")[0])
+        statvfs = os.statvfs(os.getcwd())
+        freeSpace = statvfs.f_bavail * statvfs.f_frsize
+
+        while True:
+            if  freeSpace < fileSize:
+                diffSize, unit = self._humanFriendlyUnit(fileSize - freeSpace)
+                ans = raw_input("You need an additional %.2f %s on this drive to download the whole file, continue? (y/n or c - check again): " % (diffSize, unit))
+                ans = ans.strip().lower()
+            else:
+                break
+
+            while ans not in ['y', 'n', 'c']:
+                ans = raw_input("Enter y, n or c: ").strip().lower()
+            if ans == 'n':
+                sys.exit()
+            elif ans == 'y':
+                break
+
+
         print("Downloading: %s Bytes: %s" % (fileName, fileSize) )
 
+        f = open(fileName, 'wb')
         fileSizeDl = 0
         blockSize = 8192
         while True:
@@ -267,10 +287,20 @@ class Downloader:
             print status,
 
         f.close()
-
         self._downloadedFiles.append(fileName)
 
         return True
+
+    def _humanFriendlyUnit(self, bytes):
+        number = float(bytes)
+        units = ["B", "KiB", "MiB", "GiB", "TiB"]
+
+        for unit in units:
+            if number < 1024. or unit == units[-1]:
+                break
+            number /= 1024.
+
+        return number, unit
 
     def _glue(self):
         if self._glueNeeded == False:

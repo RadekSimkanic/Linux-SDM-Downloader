@@ -1,4 +1,4 @@
-# Linux-SDM-Downloader 1.1.0
+# Linux-SDM-Downloader 1.2.0
 Downloader SDM files via SDX file (DreamSpark) on Linux (primary)
 
 ## What is it?
@@ -27,6 +27,9 @@ python main.py <SDX file>
 Next step after successful process for unpacking SDM package is unpacking via [xSDM](https://github.com/v3l0c1r4pt0r/xSDM).
 
 ## News
+28-07-2016
+- Version 1.2.0
+- Added functionality that checks for free space on disk.
 22-06-2016
 - Version 1.1.0
 - Eliminating the use of beautifulsoup. Prerequisities only Lxml.
@@ -41,13 +44,14 @@ Next step after successful process for unpacking SDM package is unpacking via [x
 - Created first beta version
 
 ## Tested
-Version 1.0.0:
-- **Linux Ubuntu 15.10 wily | Python 2.7.10: OK (Bent Haase)**
+Version 1.*.*:
+- **Linux Ubuntu 15.10 wily** | Python 2.7.10: **OK** (Bent Haase)
 - **Linux Mint 17.1 Rebecca** | Python 2.7.6: **OK** (Radek Simkanič)
 - **Linux Debian Wheezy** | Python 2.7.3: **OK** (Dominik Chrastecký)
 - **Windows 10** | cygwin | Python 2.7.8: **OK** (Dominik Chrastecký)
 - **Linux Debian 8 Jessie (32 bit)** | Python 2.7.9: **OK** (Zbyněk Fišer - Nialaren)
 - **OS X 10.11.1 (15B42)** | Python 2.7.10: **OK** (Michal Jamroz)
 - **Arch (4.2.5-1)** | Python 2.7.10: **OK**
+- **Linux Fedora 24** | Python 2.7.11: **OK** (Michael Chavrimootoo)
 
 Please tell me whether you work Linux-SDM-Downloader on your distribution.
