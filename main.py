@@ -13,7 +13,7 @@ import shutil
 import HTMLParser
 
 from urlparse import urlparse
-from subprocess import call, check_output, PIPE
+from subprocess import check_output
 
 import lxml
 from lxml import etree
@@ -241,57 +241,66 @@ class Downloader:
         return True
 
     def _downloadFile(self, url, fileName):
-        
-        if call("type wget" , shell=True, stdout=PIPE, stderr=PIPE) == 0:
-            status = call(['wget', url])
-            if status != 0:
-                return False  
-        
-        else:
-            message("Testing download URL: %s" % url, INFORMATION)
-            
-            request = urllib2.Request(url)
-            try:
-                u = urllib2.urlopen(request)
-            except urllib2.URLError, e:
-                return False
-            meta = u.info()
+        message("Testing download URL: %s" % url, INFORMATION)
 
-            fileSize = int(meta.getheaders("Content-Length")[0])
-            
-            cmd = 'df -k %s' % os.getcwd()
-            freeSpace = int(check_output(cmd.strip().split()).split('\n')[1].split()[3])
-            diffSize = float( (fileSize - freeSpace)/ 1024.0 )
+        request = urllib2.Request(url)
+        try:
+            u = urllib2.urlopen(request)
+        except urllib2.URLError, e:
+            return False
+        meta = u.info()
+
+        fileSize = int(meta.getheaders("Content-Length")[0])
+        statvfs = os.statvfs(os.getcwd())
+        freeSpace = statvfs.f_bavail * statvfs.f_frsize
+
+        while True:
             if  freeSpace < fileSize:
-                ans = raw_input("You need an additional %f MB on this drive to download the whole file, continue? (y/n) " % diffSize).strip()
-            
-            while ans != 'y' and ans != 'n':
-                ans = raw_input("Enter y or n: ")
-                if ans == 'n':
-                    sys.exit()
-            
-            print("Downloading: %s Bytes: %s" % (fileName, fileSize) )
-            
-            f = open(fileName, 'wb')
-            fileSizeDl = 0
-            blockSize = 8192
-            while True:
-                buffer = u.read(blockSize)
-                if not buffer:
-                    break
+                diffSize, unit = self._humanFriendlyUnit(fileSize - freeSpace)
+                ans = raw_input("You need an additional %.2f %s on this drive to download the whole file, continue? (y/n or c - check again): " % (diffSize, unit))
+                ans = ans.strip().lower()
+            else:
+                break
 
-                fileSizeDl += len(buffer)
-                f.write(buffer)
-                status = r"%10d  [%3.2f%%]" % (fileSizeDl, fileSizeDl * 100. / fileSize)
-                status = status + chr(8)*(len(status)+1)
-                print status,
+            while ans not in ['y', 'n', 'c']:
+                ans = raw_input("Enter y, n or c: ").strip().lower()
+            if ans == 'n':
+                sys.exit()
+            elif ans == 'y':
+                break
 
-            f.close()
-            
-            
+
+        print("Downloading: %s Bytes: %s" % (fileName, fileSize) )
+
+        f = open(fileName, 'wb')
+        fileSizeDl = 0
+        blockSize = 8192
+        while True:
+            buffer = u.read(blockSize)
+            if not buffer:
+                break
+
+            fileSizeDl += len(buffer)
+            f.write(buffer)
+            status = r"%10d  [%3.2f%%]" % (fileSizeDl, fileSizeDl * 100. / fileSize)
+            status = status + chr(8)*(len(status)+1)
+            print status,
+
+        f.close()
         self._downloadedFiles.append(fileName)
 
         return True
+
+    def _humanFriendlyUnit(self, bytes):
+        number = float(bytes)
+        units = ["B", "KiB", "MiB", "GiB", "TiB"]
+
+        for unit in units:
+            if number < 1024. or unit == units[-1]:
+                break
+            number /= 1024.
+
+        return number, unit
 
     def _glue(self):
         if self._glueNeeded == False:
