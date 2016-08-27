@@ -36,7 +36,7 @@ def main() :
 
 def message(text, type):
     if type == INFORMATION:
-        print("\033[33mInfo:\033[0m %s" % text)
+        print("\033[36;1mInfo:\033[0m %s" % text)
     elif type == WARNING:
         print("\033[33mWarning:\033[0m %s" % text)
     elif type == ERROR:
@@ -57,6 +57,7 @@ class Downloader:
         self._selected = 0
         self._domain = ""
         self._downloadedFiles = []
+        self._downloadDir = ""
         self._parsers = []
         self._lastFileId = 0
         self._filesMapper = []
@@ -199,6 +200,9 @@ class Downloader:
         name = parser.getFileName(self._selected)
         fileKeyName = "%s.key" % name
 
+        # Set up Download Directory
+        self._setupDLDir()
+
         if html.find("<edv/>") != -1 or edv is None:
             message("The .key file is not necessary.", INFORMATION)
         else:
@@ -324,6 +328,16 @@ class Downloader:
             shutil.copyfileobj(open(file, 'rb'), destination)
             os.remove(file)
         destination.close()
+
+    def _setupDLDir(self):
+        self._downloadDir = os.path.splitext(self._sdxFile)[0]
+        os.chdir(os.path.dirname(self._sdxFile))
+        # Create the download directory or enter it if it exists
+        try:
+            os.mkdir(self._downloadDir)
+        except OSError:
+            os.chdir(self._downloadDir)
+        message("Files will be downloaded to: " + self._downloadDir, INFORMATION)
 
 class Parser:
     def __init__(self, etreeElementGroup, groupId, startingFileId):
