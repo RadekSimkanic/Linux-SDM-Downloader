@@ -246,7 +246,7 @@ class Downloader:
                 message("Something is wrong, probably URL", ERROR)
                 return False
 
-        message("Downloaded.", INFORMATION)
+        message("Files downloaded to: " + self._downloadDir, INFORMATION)
         return True
 
     def _downloadFile(self, url, fileName):
