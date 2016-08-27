@@ -335,6 +335,7 @@ class Downloader:
         # Create the download directory or enter it if it exists
         try:
             os.mkdir(self._downloadDir)
+            os.chdir(self._downloadDir)
         except OSError:
             os.chdir(self._downloadDir)
         message("Files will be downloaded to: " + self._downloadDir, INFORMATION)
