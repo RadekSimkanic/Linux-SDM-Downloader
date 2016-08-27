@@ -36,7 +36,7 @@ def main() :
 
 def message(text, type):
     if type == INFORMATION:
-        print("Info: %s" % text)
+        print("\033[33mInfo:\033[0m %s" % text)
     elif type == WARNING:
         print("\033[33mWarning:\033[0m %s" % text)
     elif type == ERROR:
@@ -105,6 +105,9 @@ class Downloader:
             return True
         except ValueError:
             message(ValueError, EXCEPTION)
+            return False
+        except IOError as e:
+            message(self._sdxFile + ": " + e.strerror, EXCEPTION)
             return False
 
     def _getList(self):
@@ -306,7 +309,7 @@ class Downloader:
 
     def _glue(self):
         if self._glueNeeded == False:
-            message("Glue is not need", INFORMATION)
+            message("Glue is not needed", INFORMATION)
             return
         else:
             message("Gluing...", INFORMATION)
