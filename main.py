@@ -3,20 +3,31 @@
 
 # first inspiration: http://v3l0c1r4pt0r.tk/2014/06/01/how-to-download-from-dreamspark-bypassing-secure-download-manager/
 
+from __future__ import print_function
 __author__ = 'gulliver - Radek Simkanič'
 __version__ = "1.2.0"
 
-import urllib2
-import sys
+import ctypes
+import lxml
 import os
 import shutil
-import HTMLParser
+import sys
 
-from urlparse import urlparse
+from lxml import etree
 from subprocess import check_output
 
-import lxml
-from lxml import etree
+if sys.version < '3.0':
+    import HTMLParser
+    import urllib2
+    from urlparse import urlparse
+else:
+    import html.parser as HTMLParser
+    import urllib.request as urllib2
+    from urllib.parse import urlparse
+    xrange = range
+    unicode = str
+
+
 
 # constants
 INFORMATION = 0
@@ -45,6 +56,23 @@ def message(text, type):
         print("\033[41;1mEXCEPTION:\033[0m %s" % text)
     elif type == DONE:
         print("\033[32;1m %s \033[0m" % text)
+
+
+def get_free_disk_space(dirname):
+    if hasattr(os, 'statvfs'):
+        statvfs = os.statvfs(os.getcwd())
+        return statvfs.f_bavail * statvfs.f_frsize
+    elif os.name == 'nt':
+        import ctypes
+        drive = unicode(dirname)
+        freeuser = ctypes.c_int64()
+        total = ctypes.c_int64()
+        free = ctypes.c_int64()
+        ctypes.windll.kernel32.GetDiskFreeSpaceExW(drive,
+            ctypes.byref(freeuser), ctypes.byref(total), ctypes.byref(free))
+        return freeuser.value
+    else:
+        raise EnvironmentError("could not detect free disk space")
 
 
 def findInsensitive(lxmlElement, tag, attribute, value):
@@ -196,7 +224,7 @@ class Downloader:
         name = parser.getFileName(self._selected)
         fileKeyName = "%s.key" % name
 
-        if html.find("<edv/>") != -1 or edv is None:
+        if html.find(b"<edv/>") != -1 or edv is None:
             message("The .key file is not necessary.", INFORMATION)
         else:
             message("Creating .key file", INFORMATION)
@@ -248,13 +276,12 @@ class Downloader:
         request = urllib2.Request(url)
         try:
             u = urllib2.urlopen(request)
-        except urllib2.URLError, e:
+        except urllib2.URLError as e:
             return False
         meta = u.info()
 
-        fileSize = int(meta.getheaders("Content-Length")[0])
-        statvfs = os.statvfs(os.getcwd())
-        freeSpace = statvfs.f_bavail * statvfs.f_frsize
+        fileSize = int(meta.get("Content-Length"))
+        freeSpace = get_free_disk_space(os.getcwd())
 
         while True:
             if  freeSpace < fileSize:
@@ -271,8 +298,7 @@ class Downloader:
             elif ans == 'y':
                 break
 
-
-        print("Downloading: %s Bytes: %s" % (fileName, fileSize) )
+        print("Downloading: %s Bytes: %s" % (fileName, fileSize))
 
         f = open(fileName, 'wb')
         fileSizeDl = 0
@@ -286,7 +312,7 @@ class Downloader:
             f.write(buffer)
             status = r"%10d  [%3.2f%%]" % (fileSizeDl, fileSizeDl * 100. / fileSize)
             status = status + chr(8)*(len(status)+1)
-            print status,
+            print(status, end='')
 
         f.close()
         self._downloadedFiles.append(fileName)
