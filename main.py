@@ -3,20 +3,30 @@
 
 # first inspiration: http://v3l0c1r4pt0r.tk/2014/06/01/how-to-download-from-dreamspark-bypassing-secure-download-manager/
 
+from __future__ import print_function
 __author__ = 'gulliver - Radek Simkanič'
 __version__ = "1.3.0"
 
-import urllib2
-import sys
+
 import os
 import shutil
-import HTMLParser
-
-from urlparse import urlparse
-from subprocess import check_output
-
+import sys
 import lxml
 from lxml import etree
+from subprocess import check_output
+
+if sys.version_info[0] < 3:
+    import HTMLParser
+    import urllib2
+    from urlparse import urlparse
+else:
+    import html.parser as HTMLParser
+    import urllib.request as urllib2
+    from urllib.parse import urlparse
+    xrange = range
+    unicode = str
+
+
 
 # constants
 INFORMATION = 0
@@ -24,6 +34,7 @@ WARNING = 1
 ERROR = 2
 EXCEPTION = 3
 DONE = 4
+CR_MESSAGE = 5
 
 def main() :
     argv = sys.argv
@@ -45,6 +56,27 @@ def message(text, type):
         print("\033[41;1mEXCEPTION:\033[0m %s" % text)
     elif type == DONE:
         print("\033[32;1m %s \033[0m" % text)
+    elif type == CR_MESSAGE:
+        print(text, end='')
+
+
+
+def getFreeDiskSpace(dirname):
+    if hasattr(os, 'statvfs'):
+        statvfs = os.statvfs(os.getcwd())
+        return statvfs.f_bavail * statvfs.f_frsize
+    elif os.name == 'nt':
+        import ctypes
+        drive = unicode(dirname)
+        freeuser = ctypes.c_int64()
+        total = ctypes.c_int64()
+        free = ctypes.c_int64()
+        ctypes.windll.kernel32.GetDiskFreeSpaceExW(drive,
+            ctypes.byref(freeuser), ctypes.byref(total), ctypes.byref(free))
+        return freeuser.value
+    else:
+        message("Could not detect free disk space", EXCEPTION)
+        return -1
 
 
 def findInsensitive(lxmlElement, tag, attribute, value):
@@ -203,7 +235,7 @@ class Downloader:
         # Set up Download Directory
         self._setupDLDir()
 
-        if html.find("<edv/>") != -1 or edv is None:
+        if html.find(b"<edv/>") != -1 or edv is None:
             message("The .key file is not necessary.", INFORMATION)
         else:
             message("Creating .key file", INFORMATION)
@@ -255,13 +287,14 @@ class Downloader:
         request = urllib2.Request(url)
         try:
             u = urllib2.urlopen(request)
-        except urllib2.URLError, e:
+        except urllib2.URLError as e:
             return False
         meta = u.info()
 
-        fileSize = int(meta.getheaders("Content-Length")[0])
-        statvfs = os.statvfs(os.getcwd())
-        freeSpace = statvfs.f_bavail * statvfs.f_frsize
+        fileSize = int(meta.get("Content-Length"))
+        freeSpace = getFreeDiskSpace(os.getcwd())
+        if freeSpace < 0:
+            return False
 
         while True:
             if  freeSpace < fileSize:
@@ -278,8 +311,7 @@ class Downloader:
             elif ans == 'y':
                 break
 
-
-        print("Downloading: %s Bytes: %s" % (fileName, fileSize) )
+        print("Downloading: %s Bytes: %s" % (fileName, fileSize))
 
         f = open(fileName, 'wb')
         fileSizeDl = 0
@@ -293,7 +325,7 @@ class Downloader:
             f.write(buffer)
             status = r"%10d  [%3.2f%%]" % (fileSizeDl, fileSizeDl * 100. / fileSize)
             status = status + chr(8)*(len(status)+1)
-            print status,
+            message(status, CR_MESSAGE)
 
         f.close()
         self._downloadedFiles.append(fileName)
