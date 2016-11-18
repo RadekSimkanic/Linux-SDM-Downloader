@@ -4,7 +4,7 @@
 # first inspiration: http://v3l0c1r4pt0r.tk/2014/06/01/how-to-download-from-dreamspark-bypassing-secure-download-manager/
 
 __author__ = 'gulliver - Radek Simkanič'
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 
 import urllib2
 import sys

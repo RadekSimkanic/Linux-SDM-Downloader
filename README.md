@@ -1,4 +1,4 @@
-# Linux-SDM-Downloader 1.2.0
+# Linux-SDM-Downloader 1.3.0
 Downloader SDM files via SDX file (DreamSpark) on Linux (primary)
 
 ## What is it?
@@ -27,6 +27,11 @@ python main.py <SDX file>
 Next step after successful process for unpacking SDM package is unpacking via [xSDM](https://github.com/v3l0c1r4pt0r/xSDM).
 
 ## News
+2016-11-18
+- Version 1.3.0
+- Added pretty exit error in case of the file is not found.
+- Added function to create and/or enter dedicated download directory in the same directory as the source .sdx file.
+
 2016-07-28:
 - Version 1.2.0
 - Added functionality that checks for free space on disk.
