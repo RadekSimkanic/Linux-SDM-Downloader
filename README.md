@@ -27,10 +27,12 @@ python main.py <SDX file>
 Next step after successful process for unpacking SDM package is unpacking via [xSDM](https://github.com/v3l0c1r4pt0r/xSDM).
 
 ## News
-2016-11-18
+2016-11-19
 - Version 1.3.0
 - Added pretty exit error in case of the file is not found.
 - Added function to create and/or enter dedicated download directory in the same directory as the source .sdx file.
+- Added support for Windows
+- Added support Python 3
 
 2016-07-28:
 - Version 1.2.0
@@ -51,6 +53,10 @@ Next step after successful process for unpacking SDM package is unpacking via [x
 - Created first beta version
 
 ## Tested
+
+Version 1.2.1:
+- **Windows 10 x64** | Python 3.5.2: **OK** (Niklas Rosenstein)
+
 Version 1.\*.\*:
 - **Linux Ubuntu 15.10 wily** | Python 2.7.10: **OK** (Bent Haase)
 - **Linux Mint 17.1 Rebecca** | Python 2.7.6: **OK** (Radek Simkanič)
