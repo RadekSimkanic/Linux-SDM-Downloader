@@ -46,18 +46,32 @@ def main() :
     d.execute()
 
 def message(text, type):
-    if type == INFORMATION:
-        print("\033[36;1mInfo:\033[0m %s" % text)
-    elif type == WARNING:
-        print("\033[33mWarning:\033[0m %s" % text)
-    elif type == ERROR:
-        print("\033[31;1mError:\033[0m %s" % text)
-    elif type == EXCEPTION:
-        print("\033[41;1mEXCEPTION:\033[0m %s" % text)
-    elif type == DONE:
-        print("\033[32;1m %s \033[0m" % text)
-    elif type == CR_MESSAGE:
-        print(text, end='')
+    if os.name == 'nt':
+        if type == INFORMATION:
+            print("Info: %s" % text)
+        elif type == WARNING:
+            print("Warning: %s" % text)
+        elif type == ERROR:
+            print("Error: %s" % text)
+        elif type == EXCEPTION:
+            print("EXCEPTION: %s" % text)
+        elif type == DONE:
+            print(" %s" % text)
+        elif type == CR_MESSAGE:
+            print(text, end='')
+    else:
+        if type == INFORMATION:
+            print("\033[36;1mInfo:\033[0m %s" % text)
+        elif type == WARNING:
+            print("\033[33mWarning:\033[0m %s" % text)
+        elif type == ERROR:
+            print("\033[31;1mError:\033[0m %s" % text)
+        elif type == EXCEPTION:
+            print("\033[41;1mEXCEPTION:\033[0m %s" % text)
+        elif type == DONE:
+            print("\033[32;1m %s \033[0m" % text)
+        elif type == CR_MESSAGE:
+            print(text, end='')
 
 
 
