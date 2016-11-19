@@ -31,13 +31,13 @@ Next step after successful process for unpacking SDM package is unpacking via [x
 - Version 1.3.0
 - Added pretty exit error in case of the file is not found.
 - Added function to create and/or enter dedicated download directory in the same directory as the source .sdx file.
-- Added support for Windows
-- Added support Python 3
+- Added support for Windows.
+- Added support Python 3.
 
 2016-07-28:
 - Version 1.2.0
 - Added functionality that checks for free space on disk.
-- Fix bug - selecting file in groups
+- Fix bug - selecting file in groups.
 
 2016-06-22:
 - Version 1.1.0
@@ -46,15 +46,15 @@ Next step after successful process for unpacking SDM package is unpacking via [x
 
 2015-10-28:
 - Version 1.0.0
-- Enable downloading also ISO files (and maybe others files) via .SDX
+- Enable downloading also ISO files (and maybe others files) via .SDX.
 - List of tested OS and status whether works ok or not.
 
 2015-01-29:
-- Created first beta version
+- Created first beta version.
 
 ## Tested
 
-Version 1.2.1:
+Version 1.3.0:
 - **Windows 10 x64** | Python 3.5.2: **OK** (Niklas Rosenstein)
 
 Version 1.\*.\*:
