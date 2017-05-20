@@ -5,7 +5,7 @@
 
 from __future__ import print_function
 __author__ = 'gulliver - Radek Simkanič'
-__version__ = "1.3.0"
+__version__ = "1.3.1"
 
 
 import os
@@ -210,10 +210,16 @@ class Downloader:
     def _downloadFiles(self):
         message("Creating URL", INFORMATION)
         parser = self._getSelectedParser()
-        url = parser.getDownloadUrl(
+        url, isDownloadImmediately = parser.getDownloadUrl(
             self._selected,
             self._domain
         )
+        if isDownloadImmediately:
+            message("Ready to download immediately.", INFORMATION)
+            name = parser.getFileName(self._selected)
+            self._downloadFile(url, name)
+            return True
+
         message("Downloading page contains download link", INFORMATION)
         response = urllib2.urlopen(url)
         html = response.read()
@@ -399,7 +405,7 @@ class Parser:
         self._oiopu = []
         self._fileId = []
         self._fileName = []
-        #self._fileUrl = []
+        self._fileUrl = []
         self._parse()
 
     def _parse(self):
@@ -430,14 +436,25 @@ class Parser:
                 oiopu = findInsensitive(self._etreeElement, "input", "id", "oiopu%i"%self._endFileId)
                 fileId = findInsensitive(self._etreeElement, "input", "id", "fileId%i"%self._endFileId)
                 fileName = findInsensitive(self._etreeElement, "input", "id", "fileName%i"%self._endFileId)
+                fileUrl = findInsensitive(self._etreeElement, "input", "id", "fileUrl%i"%self._endFileId)
 
                 if len(oiop) == 0 or len(oiopu) == 0 or len(fileId) == 0 or len(fileName) == 0:
-                    message("Fragments is not found during parsing", ERROR)
-                    return False
+                    if len(fileUrl) == 0:
+                        message("Fragments is not found during parsing", ERROR)
+                        return False
+                    oiop = oiopu = ""
+                    if len(fileId) == 0:
+                        fileId = "none"
+                    if len(fileName):
+                        fileName = "no name"
+                elif len(fileUrl) == 0:
+                    fileUrl = ""
+
                 oiop = oiop[0].get("value")
                 oiopu = oiopu[0].get("value")
                 fileId = fileId[0].get("value")
                 fileName = fileName[0].get("value")
+                fileUrl = fileUrl[0].get("value")
 
                 self._oiop.append(
                     oiop
@@ -450,6 +467,9 @@ class Parser:
                 )
                 self._fileName.append(
                     fileName
+                )
+                self._fileUrl.append(
+                    fileUrl
                 )
 
                 self._endFileId += 1
@@ -479,10 +499,14 @@ class Parser:
 
     def getDownloadUrl(self, selected, domain):
         position = selected - self._beginFileId
+
+        if (len(self._fileUrl) and self._fileUrl[position] != ""):
+            return self._fileUrl[position], True
+
         url = "http://%s/WebStore/Account/SDMAuthorize.ashx?oiopu=%s&f=%s&oiop=%s&dl=%s" \
               % (domain, self._oiopu[position], self._fileId[position], self._oiop[position], self._dlSelect)
 
-        return url
+        return url, False
 
     def getFileName(self, fileId):
         position = fileId - self._beginFileId
