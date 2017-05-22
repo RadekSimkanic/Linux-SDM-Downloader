@@ -5,7 +5,7 @@
 
 from __future__ import print_function
 __author__ = 'gulliver - Radek Simkanič'
-__version__ = "1.3.1"
+__version__ = "1.3.2"
 
 
 import os
@@ -138,6 +138,7 @@ class Downloader:
 
             message("Parsing URL", INFORMATION)
             urlFragments = urlparse(url)
+            print(url)
             if hasattr(urlFragments, 'netloc'):
                 self._domain = urlFragments.netloc
             else:
@@ -218,6 +219,7 @@ class Downloader:
             message("Ready to download immediately.", INFORMATION)
             name = parser.getFileName(self._selected)
             self._downloadFile(url, name)
+            self._glueNeeded = False
             return True
 
         message("Downloading page contains download link", INFORMATION)

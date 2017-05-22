@@ -1,4 +1,4 @@
-# Linux-SDM-Downloader 1.3.1
+# Linux-SDM-Downloader 1.3.2
 Downloader SDM files via SDX file (DreamSpark) on Linux (primary)
 
 ## What is it?
@@ -28,7 +28,7 @@ Next step after successful process for unpacking SDM package is unpacking via [x
 
 ## News
 2017-05-20
-- Version 1.3.1
+- Version 1.3.1 - 1.3.2
 - Fix bug #16, #17 - available new way to download without creating special URLs when is available URL.
 
 2016-11-19
